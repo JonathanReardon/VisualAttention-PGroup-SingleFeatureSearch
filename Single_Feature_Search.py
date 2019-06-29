@@ -1,4 +1,5 @@
-# Import necessary variables
+#!/usr/bin/env python3
+
 from psychopy import visual, core, gui, event, sound
 from psychopy.data import getDateStr
 import os
