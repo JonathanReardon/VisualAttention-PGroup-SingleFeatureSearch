@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-from psychopy import visual, core, gui, event, sound
-from psychopy.data import getDateStr
+'''
+    Title     :Single_Feature_Search.py
+    Author    :Jonathan Reardon
+    Email     :jonathanjreardon@gmail.com
+'''
+
 import os
 import glob
 import csv
 import random
+from psychopy import visual, core, gui, event, sound
+from psychopy.data import getDateStr
 from psychopy.data import getDateStr
 from psychopy import core, visual
 from psychopy.iohub.client import launchHubServer
@@ -39,19 +46,22 @@ tracker = io.devices.tracker
 # run eyetracker calibration
 r = tracker.runSetupProcedure()
 
-####################################################################################################################################################################
-################################################################# MAKE ALL VISUAL ELEMENTS #########################################################################
-####################################################################################################################################################################
+################################################################################
+########################### MAKE ALL VISUAL ELEMENTS ###########################
+################################################################################
 
 # Open a writeable data file
 current_time = getDateStr()
 dataFile = open(current_time +'.csv', 'w') 
 writer = csv.writer(dataFile)
-writer.writerow(["Eyes 1=good", "SIM (1=yes, 0=no", "PGROUP 1=yes, 0=no", "ATTEND 1/3", "Target Pres", "START TIME", "KEYTIME", "RT", "TARGET NAME", "TARGET POSITION", "TARGET ONSET TIME", 
-                 "STIM1 NAME", "STIM 1 ONSET", "STIM2 NAME", "STIM2 ONSET", "STIM3 NAME", "STIM3 ONSET", "STIM4 NAME", "STIM4 ONSET", "STIM5 NAME", "STIM5 ONSET"])
+writer.writerow(["Eyes 1=good", "SIM (1=yes, 0=no", "PGROUP 1=yes, 0=no", "ATTEND 1/3", "Target Pres", 
+                 "START TIME", "KEYTIME", "RT", "TARGET NAME", "TARGET POSITION", "TARGET ONSET TIME", 
+                 "STIM1 NAME", "STIM 1 ONSET", "STIM2 NAME", "STIM2 ONSET", "STIM3 NAME", "STIM3 ONSET", 
+                 "STIM4 NAME", "STIM4 ONSET", "STIM5 NAME", "STIM5 ONSET"])
 
 # Initialize window
-win = visual.Window([800,600],color=(-1,-1,-1),colorSpace='rgb', allowGUI=True, monitor='testMonitor', units='deg', fullscr=True)
+win = visual.Window([800,600],color=(-1,-1,-1),colorSpace='rgb', allowGUI=True, 
+                    monitor='testMonitor', units='deg', fullscr=True)
 
 # Create a circle stim centered in middle of screen, with radius of 200 px.
 # Change the radius to whatever suits you...
@@ -125,7 +135,6 @@ def jitter():
                    
     random.shuffle(jitter_list)
                    
-    
 refresh_rate()
 
 # set upper right quadrant grid positions 
@@ -353,7 +362,9 @@ def attend3_wait():
         win.flip()
 
 def get_sequential_stim_times():
+
     global gate, one_time, two_time, three_time, four_time, five_time, x, frame
+
     if  gate == 1 and frame == 0:
         one_time = x
         gate +=1
@@ -370,8 +381,11 @@ def get_sequential_stim_times():
         five_time = x
         
 def get_keys():
+
     global allKeys, keyTime, thisKey
+
     allKeys = event.getKeys(keyList = ('h','escape'))
+    
     for thisKey in allKeys:
         if thisKey == 'h':
             keyTime=core.getTime()
@@ -405,17 +419,15 @@ def thank_you():
         for thisKey in allKeys:
             if thisKey == 'space':
                 dataFile.close()
-                
                 tracker.setConnectionState(False)
                 io.quit()
-                
                 core.wait(1)
                 core.quit()
                 win.close()
             
-###################################################################################################################################
-############################################### CREATE SELECTION FUNCTIONS ########################################################
-###################################################################################################################################
+########################################################################################################
+###################################### CREATE SELECTION FUNCTIONS ######################################
+########################################################################################################
 
 # Select target item
 def select_target():
@@ -499,52 +511,17 @@ def select_stims(tabsent=1, attend=1):
 def display_target():
     
     global target_time
+
+    prompts = [prompt1, prompt2, prompt3, 
+               prompt1, prompt2, prompt3,
+               prompt1, prompt2, prompt3]
     
     target_time = core.getTime()
-    for frame in range(target_frames):
-        prompt1.draw()
-        target.draw()
-        win.flip()
-        
-    for frame in range(target_frames):
-        prompt2.draw()
-        target.draw()
-        win.flip()
-        
-    for frame in range(target_frames):
-        prompt3.draw()
-        target.draw()
-        win.flip()
-        
-    for frame in range(target_frames):
-        prompt1.draw()
-        target.draw()
-        win.flip()
-        
-    for frame in range(target_frames):
-        prompt2.draw()
-        target.draw()
-        win.flip()
-        
-    for frame in range(target_frames):
-        prompt3.draw()
-        target.draw()
-        win.flip()
-        
-    for frame in range(target_frames):
-        prompt1.draw()
-        target.draw()
-        win.flip()
-        
-    for frame in range(target_frames):
-        prompt2.draw()
-        target.draw()
-        win.flip()
-        
-    for frame in range(target_frames):
-        prompt3.draw()
-        target.draw()
-        win.flip()
+    for counter, prompt in enumerate(prompts):
+        for frame in range(target_frames):
+            prompt[counter].draw()
+            target.draw()
+            win.flip()
         
 def eye_error_prompt():
     
@@ -622,9 +599,11 @@ def display_stims(sim=1, pgroup=1):
                 win.flip()
                     
             if eyes == 1:
-                dataFile.write('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n'%(eyes, sim, pgroup, attend, targ[0], startTime, keyTime, RT, target.name, target.pos, target_time, stim_names[0],
-                                                                                                                 stim_times[1], stim_names[1], stim_times[1], stim_names[2], stim_times[2], stim_names[3], stim_times[3], 
-                                                                                                                 stim_names[4], stim_times[4]))
+                dataFile.write(f'{eyes}, {sim}, {pgroup}, {attend}, {targ[0]}, {startTime}',
+                               f'{keyTime}, {RT}, {target.name}, {target.pos}, {target_time}', 
+                               f'{stim_names[0]}, {stim_times[1]}, {stim_names[1]}, {stim_times[1]}', 
+                               f'{stim_names[2]}, {stim_times[2]}, {stim_names[3]}, {stim_times[3]}',
+                               f'{stim_names[4]}, {stim_times[4]}')
                 running = 0
                 
             elif eyes == 0:
@@ -685,9 +664,11 @@ def display_stims(sim=1, pgroup=1):
                 win.flip()
                     
             if eyes == 1:
-                dataFile.write('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n'%(eyes, sim, pgroup, attend, targ[0], startTime, keyTime, RT, target.name, target.pos, target_time, stim_names[0],
-                                                                                                                 stim_times[1], stim_names[1], stim_times[1], stim_names[2], stim_times[2], stim_names[3], stim_times[3], 
-                                                                                                                 stim_names[4], stim_times[4]))
+                dataFile.write(f'{eyes}, {sim}, {pgroup}, {attend}, {targ[0]}, {startTime}',
+                               f'{keyTime}, {RT}, {target.name}, {target.pos}, {target_time}', 
+                               f'{stim_names[0]}, {stim_times[1]}, {stim_names[1]}, {stim_times[1]}', 
+                               f'{stim_names[2]}, {stim_times[2]}, {stim_names[3]}, {stim_times[3]}',
+                               f'{stim_names[4]}, {stim_times[4]}')
                 running = 0
                 
             elif eyes == 0:
@@ -750,9 +731,11 @@ def display_stims(sim=1, pgroup=1):
             
                     
             if eyes == 1:
-                dataFile.write('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n'%(eyes, sim, pgroup, attend, targ[0], startTime, keyTime, RT, target.name, target.pos, target_time, stim_names[0],
-                                                                                                                 stim_times[1], stim_names[1], stim_times[1], stim_names[2], stim_times[2], stim_names[3], stim_times[3], 
-                                                                                                                 stim_names[4], stim_times[4]))
+                dataFile.write(f'{eyes}, {sim}, {pgroup}, {attend}, {targ[0]}, {startTime}',
+                               f'{keyTime}, {RT}, {target.name}, {target.pos}, {target_time}', 
+                               f'{stim_names[0]}, {stim_times[1]}, {stim_names[1]}, {stim_times[1]}', 
+                               f'{stim_names[2]}, {stim_times[2]}, {stim_names[3]}, {stim_times[3]}',
+                               f'{stim_names[4]}, {stim_times[4]}')
                 running = 0
             
             elif eyes == 0:
@@ -813,9 +796,11 @@ def display_stims(sim=1, pgroup=1):
                 win.flip()
                     
             if eyes == 1:
-                dataFile.write('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n'%(eyes, sim, pgroup, attend, targ[0], startTime, keyTime, RT, target.name, target.pos, target_time, stim_names[0],
-                                                                                                                 stim_times[1], stim_names[1], stim_times[1], stim_names[2], stim_times[2], stim_names[3], stim_times[3], 
-                                                                                                                 stim_names[4], stim_times[4]))
+                dataFile.write(f'{eyes}, {sim}, {pgroup}, {attend}, {targ[0]}, {startTime}',
+                               f'{keyTime}, {RT}, {target.name}, {target.pos}, {target_time}', 
+                               f'{stim_names[0]}, {stim_times[1]}, {stim_names[1]}, {stim_times[1]}', 
+                               f'{stim_names[2]}, {stim_times[2]}, {stim_names[3]}, {stim_times[3]}',
+                               f'{stim_names[4]}, {stim_times[4]}')
                 running = 0
            
             elif eyes == 0:
